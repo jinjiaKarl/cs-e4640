@@ -1,0 +1,130 @@
+commit 721955e4b683b1122829c1af42690037f9470b66
+Author: jinjia <jinjiakarl@outlook.com>
+Date:   Wed Feb 15 10:12:48 2023 +0200
+
+    docs
+
+commit 55b39e97a850f6fc913ebb4c9768fa0249fcffcf
+Author: jinjia <jinjiakarl@outlook.com>
+Date:   Tue Feb 14 15:46:02 2023 +0200
+
+    feat: update doc
+
+commit b7819762d6dfa5660b24bb6fc64c81df902fa728
+Author: jinjia <jinjiakarl@outlook.com>
+Date:   Thu Feb 9 22:44:52 2023 +0200
+
+    feat: update performance test
+
+commit ac345f794cd0c3a4ae5464722eda909643997538
+Author: jinjia <jinjiakarl@outlook.com>
+Date:   Wed Feb 8 14:29:14 2023 +0200
+
+    feat: add newlines
+
+commit 32f73a3e116816a1c14d8d411f05416897386bb7
+Author: jinjia <jinjiakarl@outlook.com>
+Date:   Wed Feb 8 14:24:23 2023 +0200
+
+    feat: update performance test
+
+commit 062403d8315b2671863e6422b744ad43360d7279
+Author: jinjia <jinjiakarl@outlook.com>
+Date:   Fri Feb 3 19:44:36 2023 +0200
+
+    feat: init
+
+commit 3533448b777439bb1200bea55b321f938bb22324
+Author: Linh Truong <linh.truong@aalto.fi>
+Date:   Wed Feb 2 11:31:27 2022 +0200
+
+    Update AssignmentGuideline.md
+
+commit fbc285b9d2a23af0a0cc6ecd40a601a9bdc4e870
+Merge: 363a3e3 f4a262f
+Author: Linh Truong <linh.truong@aalto.fi>
+Date:   Wed Feb 2 11:29:42 2022 +0200
+
+    Merge branch 'tri_recommend' into 'master'
+    
+    Update AssignmentGuideline.md
+    
+    See merge request bigdataplatforms/assignment-nr-studentid!2
+
+commit f4a262fcc36046dc6b4120590e20893c24c15acc
+Author: Nguyen Tri <tri.m.nguyen@aalto.fi>
+Date:   Wed Feb 2 11:28:15 2022 +0200
+
+    Update AssignmentGuideline.md
+
+commit 363a3e340b538fc4649880fcd37ffb98eb7cf4fa
+Author: linhsolar <linh.truong@aalto.fi>
+Date:   Mon Jan 4 09:59:16 2021 +0200
+
+    minor update of git links
+
+commit 3fb384fdde63ef8b838e2f2db3d4d0e0bcb7985b
+Author: linhsolar <linh.truong@aalto.fi>
+Date:   Fri Dec 18 12:37:51 2020 +0200
+
+    update info about violation
+
+commit 39a01dc46df38db9e0e42af6990fff645025121d
+Author: linhsolar <linh.truong@aalto.fi>
+Date:   Sat Dec 12 19:03:34 2020 +0200
+
+    update assignment guide
+
+commit 0bfe8640dd6e4e2f12ef18ebb7f1cef6d7d65745
+Author: linhsolar <linh.truong@aalto.fi>
+Date:   Fri Jul 24 16:04:27 2020 +0300
+
+    update the template - remove redundant files
+
+commit 09e04b6bd6e03aa114452057682f1b4846ca2db9
+Author: linhsolar <linh.truong@aalto.fi>
+Date:   Mon Oct 7 10:47:36 2019 +0300
+
+    just add empty, free form report files
+
+commit 3a9bfe90cbfb04f7aedc98f8b20df4524a45bc13
+Author: linhsolar <linh.truong@aalto.fi>
+Date:   Wed Sep 18 21:43:48 2019 +0300
+
+    update guideline w.r.t. logs from the git
+
+commit 2339a00270b3d4d23c7f7f2b738f5a7f9aa2c3a2
+Author: linhsolar <linh.truong@aalto.fi>
+Date:   Sun Sep 8 22:27:02 2019 +0300
+
+    update guide
+
+commit 9e8bd269fccdccd2edd7059765afc2f9e2f80c79
+Author: linhsolar <linh.truong@aalto.fi>
+Date:   Sun Sep 8 13:29:13 2019 +0300
+
+    update a bit the guide
+
+commit 5423f13164c1637f17e247c415a8590cfdfd468e
+Author: linhsolar <linh.truong@aalto.fi>
+Date:   Sun Sep 8 13:27:06 2019 +0300
+
+    add new templates
+
+commit d89f35ba5a4d18feccfc78e29e3dd35b70fc92ef
+Author: linhsolar <linh.truong@aalto.fi>
+Date:   Thu Sep 5 21:12:48 2019 +0300
+
+    update guideline
+
+commit 8354163f0cbbf301e550ef7090d4fa86f9059b99
+Author: linhsolar <linh.truong@aalto.fi>
+Date:   Thu Sep 5 21:11:02 2019 +0300
+
+    add template/guideline
+
+commit 7e0b9fbc36f51902e9bd21f2bb97bfdd924b0edd
+Author: Linh Truong <linh.truong@aalto.fi>
+Date:   Thu Sep 5 17:19:38 2019 +0300
+
+    Initial commit

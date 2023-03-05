@@ -1,0 +1,243 @@
+## 3 shards w: majority j: true
+===========================================
+Running 1 users and 2 requests
+user_0 ingested 40438 
+documents user_0 ingested 40438 documents 
+1 users requests: 2 data_lines: 80876 fails: 0 throughputs: 21189.072426814557 avg: 1.9084365367889404 std: 0.03777647018432617 min: 1.8706600666046143 90%: 1.9386577129364013 99%: 1.94545747756958 max: 1.9462130069732666
+===========================================
+Running 5 users and 2 requests
+user_2 ingested 40438 documents 
+user_1 ingested 40438 documents 
+user_4 ingested 40438 documents 
+user_0 ingested 40438 documents 
+user_3 ingested 40438 documents 
+user_2 ingested 40438 documents 
+user_1 ingested 40438 documents 
+user_0 ingested 40438 documents 
+user_3 ingested 40438 documents 
+user_4 ingested 40438 documents 
+5 users requests: 2 data_lines: 404380 fails: 0 throughputs: 6390.247972610542 avg: 6.32807993888855 std: 1.3444897585150377 min: 4.125043153762817 90%: 7.774673604965209 99%: 8.422274389266969 max: 8.494230031967163
+===========================================
+Running 10 users and 2 requests
+user_6 ingested 40438 documents 
+user_1 ingested 40438 documents 
+user_9 ingested 40438 documents 
+user_7 ingested 40438 documents 
+user_2 ingested 40438 documents 
+user_3 ingested 40438 documents 
+user_0 ingested 40438 documents 
+user_6 ingested 40438 documents 
+user_1 ingested 40438 documents 
+user_8 ingested 40438 documents 
+user_5 ingested 40438 documents 
+user_4 ingested 40438 documents 
+user_9 ingested 40438 documents 
+user_5 ingested 40438 documents 
+user_4 ingested 40438 documents 
+user_8 ingested 40438 documents 
+user_0 ingested 40438 documents 
+user_3 ingested 40438 documents 
+user_7 ingested 40438 documents 
+user_2 ingested 40438 documents 
+10 users requests: 2 data_lines: 808760 fails: 0 throughputs: 193.75438092929312 avg: 208.70753892660142 std: 250.3711686722737 min: 8.904751777648926 90%: 552.2355731964111 99%: 554.2339109015464 max: 554.492014169693
+
+
+
+
+
+
+## 3 shards w:1 j: false
+===========================================
+Running 1 users and 2 requests
+user_0 ingested 40438 documents 
+user_0 ingested 40438 documents 
+1 users requests: 2 data_lines: 80876 fails: 0 throughputs: 21231.00096973809 avg: 1.904667615890503 std: 0.05085349082946777 min: 1.8538141250610352 90%: 1.9453504085540771 99%: 1.9545040369033813 max: 1.9555211067199707
+===========================================
+Running 5 users and 2 requests
+user_0 ingested 40438 documents 
+user_1 ingested 40438 documents 
+user_4 ingested 40438 documents 
+user_2 ingested 40438 documents 
+user_3 ingested 40438 documents 
+user_1 ingested 40438 documents 
+user_0 ingested 40438 documents 
+user_4 ingested 40438 documents 
+user_2 ingested 40438 documents 
+user_3 ingested 40438 documents 
+ users requests: 2 data_lines: 404380 fails: 0 throughputs: 6875.564211969346 avg: 5.88140823841095 std: 0.7858977680078598 min: 4.979777097702026 90%: 7.003948664665222 99%: 7.1552939391136166 max: 7.172110080718994
+===========================================
+Running 10 users and 2 requests
+user_8 ingested 40438 documents 
+user_9 ingested 40438 documents 
+user_5 ingested 40438 documents 
+user_0 ingested 40438 documents 
+user_2 ingested 40438 documents 
+user_4 ingested 40438 documents 
+user_7 ingested 40438 documents 
+user_3 ingested 40438 documents 
+user_8 ingested 40438 documents 
+user_9 ingested 40438 documents 
+user_1 ingested 40438 documents
+user_6 ingested 40438 documents 
+user_5 ingested 40438 documents 
+user_0 ingested 40438 documents 
+user_1 ingested 40438 documents 
+user_4 ingested 40438 documents 
+user_3 ingested 40438 documents 
+user_7 ingested 40438 documents 
+user_2 ingested 40438 documents 
+user_6 ingested 40438 documents 
+10 users requests: 2 data_lines: 808760 fails: 0 throughputs: 471.23038491238964 avg: 85.81365144252777 std: 105.07856125706701 min: 7.38566780090332 90%: 246.73198432922362 99%: 247.58623562812804 max: 247.77325582504272
+
+
+
+## 2 shards w: majority j: true
+===========================================
+Running 1 users and 2 requests
+user_0 ingested 40438 documents
+
+user_0 ingested 40438 documents
+
+1 users requests: 2 data_lines: 80876  fails: 0 throughputs: 22128.176612864823 avg: 1.8274438381195068 std: 0.0528411865234375 min: 1.7746026515960693  90%: 1.8697167873382567 99%: 1.8792282009124757 max: 1.8802850246429443
+===========================================
+Running 5 users and 2 requests
+user_4 ingested 40438 documents
+
+user_0 ingested 40438 documents
+
+user_1 ingested 40438 documents
+
+user_3 ingested 40438 documents
+
+user_2 ingested 40438 documents
+
+user_4 ingested 40438 documents
+
+user_0 ingested 40438 documents
+
+user_1 ingested 40438 documents
+
+user_2 ingested 40438 documents
+
+user_3 ingested 40438 documents
+
+5 users requests: 2 data_lines: 404380  fails: 0 throughputs: 7027.63305181618 avg: 5.754142212867737 std: 1.5068553362333406 min: 3.648529291152954  90%: 7.734204244613648 99%: 7.9712459039688115 max: 7.997583866119385
+===========================================
+Running 10 users and 2 requests
+user_8 ingested 40438 documents
+
+user_2 ingested 40438 documents
+
+user_9 ingested 40438 documents
+
+user_6 ingested 40438 documents
+
+user_1 ingested 40438 documents
+
+user_4 ingested 40438 documents
+
+user_3 ingested 40438 documents
+
+user_0 ingested 40438 documents
+
+user_5 ingested 40438 documents
+
+user_7 ingested 40438 documents
+
+user_2 ingested 40438 documents
+
+user_9 ingested 40438 documents
+
+user_6 ingested 40438 documents
+
+user_8 ingested 40438 documents
+
+user_1 ingested 40438 documents
+
+user_7 ingested 40438 documents
+
+user_0 ingested 40438 documents
+
+user_3 ingested 40438 documents
+
+user_5 ingested 40438 documents
+
+user_4 ingested 40438 documents
+
+10 users requests: 2 data_lines: 808760  fails: 0 throughputs: 2128.4672974987 avg: 18.99864754676819 std: 5.409902225576942 min: 9.587898015975952  90%: 26.59613447189331 99%: 27.394226021766663 max: 27.465723991394043
+
+
+## 2 shards w: 1 j: false
+===========================================
+Running 1 users and 2 requests
+user_0 ingested 40438 documents
+
+user_0 ingested 40438 documents
+
+1 users requests: 2 data_lines: 80876  fails: 0 throughputs: 22128.40035500052 avg: 1.8274253606796265 std: 0.005786538124084473 min: 1.821638822555542  90%: 1.8320545911788941 99%: 1.8330961680412292 max: 1.833211898803711
+===========================================
+Running 5 users and 2 requests
+user_0 ingested 40438 documents
+
+user_4 ingested 40438 documents
+
+user_1 ingested 40438 documents
+
+user_3 ingested 40438 documents
+
+user_2 ingested 40438 documents
+
+user_1 ingested 40438 documents
+
+user_3 ingested 40438 documents
+
+user_2 ingested 40438 documents
+
+user_4 ingested 40438 documents
+
+user_0 ingested 40438 documents
+
+5 users requests: 2 data_lines: 404380  fails: 0 throughputs: 6539.77889906924 avg: 6.183389472961426 std: 1.5810130271337874 min: 3.1833741664886475  90%: 8.088384914398192 99%: 8.791941170692445 max: 8.870114088058472
+===========================================
+Running 10 users and 2 requests
+user_4 ingested 40438 documents
+
+user_1 ingested 40438 documents
+
+user_3 ingested 40438 documents
+
+user_7 ingested 40438 documents
+
+user_8 ingested 40438 documents
+
+user_5 ingested 40438 documents
+
+user_6 ingested 40438 documents
+
+user_4 ingested 40438 documents
+
+user_0 ingested 40438 documents
+
+user_9 ingested 40438 documents
+
+user_2 ingested 40438 documents
+
+user_1 ingested 40438 documents
+
+user_3 ingested 40438 documents
+
+user_7 ingested 40438 documents
+
+user_8 ingested 40438 documents
+
+user_2 ingested 40438 documents
+
+user_9 ingested 40438 documents
+
+user_5 ingested 40438 documents
+
+user_0 ingested 40438 documents
+
+user_6 ingested 40438 documents
+
+10 users requests: 2 data_lines: 808760  fails: 0 throughputs: 2414.9221029977152 avg: 16.745053577423096 std: 4.56839157989947 min: 5.805125713348389  90%: 21.414296531677245 99%: 22.014587182998657 max: 22.129950046539307
