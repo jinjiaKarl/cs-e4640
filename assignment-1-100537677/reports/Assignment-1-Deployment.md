@@ -10,10 +10,11 @@ pip3 install -r requirements.txt
 docker compose up
 
 # initialize the cluster
-bash mongo_init.sh
+bash mongodb_init.sh
 
 # check sharding
 docker-compose exec router01 mongosh --port 27017
+[direct: mongos] test> use airbnb
 [direct: mongos] airbnb> db.listing.getShardDistribution() 
 [direct: mongos] airbnb> sh.status()
 
@@ -158,14 +159,6 @@ curl --location --request POST 'http://127.0.0.1:8000/insert' \
 }
 ```
 
-
-```bash
-# start daas
-python3 mysimbdp-daas.py --database airbnb --collection listing
-
-# client
-python3 client_daas.py --ingest_file_path ../data/data.csv
-```
 
 ### performance test
 ## using bash script
