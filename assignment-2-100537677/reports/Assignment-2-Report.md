@@ -55,13 +55,28 @@ The core components such as mysimbdp-coredms, mysimbdp-daas and mysimbdp-batchin
 
 The ingestion pipeline components such as clientbatchingestapp will be dedicated for individual tenants. Each tenant will have their own clientbatchingestapp and service profile, which specifies the ingestion constraints and configurations specific to that tenant. We can determine whether the current tenant is allowed to execute according to whether the service profile exists
 
-test
-* use 2 tenants and 2 service profiles
-* test success and failure cases(test unsupport file type)
+test: in my example, I have two tenants, tenant1 and tenant2. Each tenant has their own clientbatchingestapp and service profile. The service profile of tenant1 allows csv and json files, while the service profile of tenant2 only allows csv files. The service profile of tenant1 allows 10 files and 1MB of data, while the service profile of tenant2 allows 5 files and 1MB of data.
+```
+python3 mysimbdp-batchingestmanager.py
+
+cp ../data/data.json ./client-staging-input-directory/tenant2-data.json
+
+# you can see log outputed by mysimbdp-batchingestmanager: the json file is not allowed by tenant2.
+```
+
 
 performance
-* qps
+* qps: bytes / time; 
+* success rows: number of rows that are successfully ingested
+* failed rows: number of rows that are failed to be ingested
+```
+python3 mysimbdp-batchingestmanager.py
 
+bash performance_batch.sh
+
+# you can see the qps outputed by mysimbdp-batchingestmanager
+QPS: 3962039.0801987736 Successful Rows: 404380 Failed Rows: 0
+```
 
 ## 5. Implement and provide logging features for capturing successful/failed ingestion as well as metrics about ingestion time, data size, etc., for files which have been ingested into mysimbdp. Logging information must be stored in separate files, databases or a monitoring system for analytics of ingestion. Explain how mysimbdp could use such logging information. Show and explain simple statistical data extracted from logs for individual tenants and for the whole platform with your tests. (1 point)
 
@@ -69,6 +84,7 @@ clientbatchingestapp
 * metrics
     * ingestion_time: time from the start of ingestion to the end of ingestion
     * data_size: size of the file
+    * ingestion_type: batch or stream
     * ingestion_rate: data_size/ingestion_time
     * sucessful rows: number of rows that are successfully ingested
     * failed rows: number of rows that are failed to be ingested
@@ -83,7 +99,7 @@ write shell script to extract data from log files and analyze the data
 * total number of successful/failed ingests for the whole platform
 
 
-In the next step, it is a great idea to use OpenTelemetry to expose metrics to different monitoring systems such as Prometheus and use Grafana to visualize the metrics.
+In the next step, it is a great idea to use OpenTelemetry to expose metrics to different monitoring systems such as Prometheus and use Grafana to visualize the metrics. In my implementation, I ejected the metrics to the OpenTelemetry collector and the collector will send the metrics to Prometheus.
 
 
 # Part 2 - Near-realtime data ingestion (weighted factor for grades = 3)

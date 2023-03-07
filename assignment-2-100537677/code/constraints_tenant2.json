@@ -1,5 +1,5 @@
 {
     "file_types":"csv",
-    "number_of_files_limit":3, 
+    "number_of_files_limit":2, 
     "file_size_limit":1048576
 }

@@ -1,6 +1,26 @@
-import time, json, os, importlib
+import time, json, os, importlib, logging
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
+from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import (
+    OTLPMetricExporter,
+)
+from opentelemetry.metrics import (
+    get_meter_provider,
+    set_meter_provider,
+)
+from opentelemetry.sdk.metrics import MeterProvider
+from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
+
+def set_logger():
+    logging.basicConfig(
+        format="%(asctime)s %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+        filename="../logs/batchmanager.log",
+        filemode="a",
+    )
+    logger = logging.getLogger()
+    logger.setLevel(logging.DEBUG)
+    return logger
 
 
 # reference: https://philipkiely.com/code/python_watchdog.html
@@ -45,31 +65,44 @@ class MyHandler(FileSystemEventHandler):
         print("Constraints: {}".format(constraints))
         if(self.tenants.get(tenant_name) == None):
             self.tenants[tenant_name] = {}
-            if (constraints.get("file_count") == None):
-                self.tenants[tenant_name]["file_count"] = 0
-            else:
-                self.tenants[tenant_name]["file_count"] += 1
+        if (self.tenants[tenant_name].get("file_count") == None):
+            self.tenants[tenant_name]["file_count"] = 1
+        else:
+            self.tenants[tenant_name]["file_count"] += 1
+        
         # check
         if extension  not in constraints.get("file_types").split(","):
             print("{} file {} type not allowed!".format(tenant_name, filename))
             return False
         if (constraints.get("number_of_files_limit") != None and self.tenants[tenant_name]["file_count"] > constraints.get("number_of_files_limit")):
-            print("{} file {} count exceeded!".format(tenant_name, filename))
+            print("{} file {} count {} exceeded!".format(tenant_name, filename, self.tenants[tenant_name]["file_count"]))
             return False
-        file_size = os.path.getsize(src_path)
-        if (constraints.get("file_size_limit") != None and file_size > constraints.get("file_size_limit")):
+        if (constraints.get("file_size_limit") != None and os.path.getsize(src_path) > constraints.get("file_size_limit")):
             print("{} file {} size exceeded!".format(tenant_name, filename))
             return False
         return True
     
     def call_client_batchingestapp(self, event):
-        src_path, _, _, tenant_name = self.parse_src_path(event)
+        src_path, _, extension, tenant_name = self.parse_src_path(event)
         app = importlib.import_module("clientbatchingestapp-{}".format(tenant_name) )
-        is_success, metrics = app.ingestion(src_path, tenant_name)
-        print("Ingestion result: {}".format(is_success))
-        print("Ingestion metrics: {}".format(metrics))
+        is_success, metrics = app.ingestion(src_path, extension, tenant_name)
+        print("Ingestion result: {} metrics: {} ".format(is_success, metrics))
+        logger.info("Ingestion result: {} metrics: {}".format(is_success, metrics))
+        counter.add(metrics.get("sucessful_rows", 0))
+        if (self.tenants.get(tenant_name) != None and is_success):
+            self.tenants[tenant_name]["data_size"] = self.tenants[tenant_name].get("data_size", 0) + metrics.get("data_size", 0)
+            self.tenants[tenant_name]["ingestion_time"] = self.tenants[tenant_name].get("ingestion_time", 0) + metrics.get("ingestion_time", 0)
+            self.tenants[tenant_name]["sucessful_rows"] = self.tenants[tenant_name].get("sucessful_rows", 0) + metrics.get("sucessful_rows", 0)
+            self.tenants[tenant_name]["failed_rows"] = self.tenants[tenant_name].get("failed_rows", 0) + metrics.get("failed_rows", 0)
+            self.performance_metrics(tenant_name)
         return is_success
     
+    def performance_metrics(self, tenant_name):
+        qps = self.tenants[tenant_name]["data_size"] / self.tenants[tenant_name]["ingestion_time"]
+        success_rows = self.tenants[tenant_name]["sucessful_rows"]
+        failed_rows = self.tenants[tenant_name]["failed_rows"]
+        print("QPS: {} Time {} Successful Rows: {} Failed Rows: {}".format(qps, self.tenants[tenant_name]["ingestion_time"], success_rows, failed_rows))
+
     def on_created(self, event):
         print("Created: {} file".format(event.src_path))
         if(event.event_type == "created" and event.is_directory == False):
@@ -97,6 +130,13 @@ class MyHandler(FileSystemEventHandler):
 
 
 if __name__=="__main__":
+    logger = set_logger()
+    exporter = OTLPMetricExporter(insecure=True)
+    reader = PeriodicExportingMetricReader(exporter)
+    provider = MeterProvider(metric_readers=[reader])
+    set_meter_provider(provider)
+    meter = get_meter_provider().get_meter("batch", "0.1.0")
+    counter = meter.create_counter("sucessful_rows")
     folder_name = "./client-staging-input-directory"
     w = Watcher(folder_name, MyHandler())
     w.run()
