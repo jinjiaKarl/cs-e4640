@@ -1,11 +1,12 @@
-import json, time, os
+import json, time, os, datetime
 import pandas as pd
 import pymongo
+
 def ingestion(file_path, extension, name):
     print("Ingesting file: " + file_path, "with name: " + name)
     client = pymongo.MongoClient("mongodb://localhost:27117/")
     db = client["airbnb"]
-    collection = db["listing"]
+    collection = db["listing_tenant2"]
 
     # metrics
     start = time.time()
@@ -33,6 +34,7 @@ def ingestion(file_path, extension, name):
         "data_size": data_size, # in bytes
         "sucessful_rows": sucessful_rows,
         "failed_rows": failed_rows,
-        "tanent_name": name
+        "tenant_name": name,
+        "timestamp": str(datetime.datetime.now())
     }
     return True, metrics

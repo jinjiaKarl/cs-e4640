@@ -10,4 +10,5 @@ sh.addShard("rs-shard-03/shard03-c:27017")
 
 sh.enableSharding("airbnb")
 db.listing.createIndex( {host_id: 1} )
-sh.shardCollection("airbnb.listing", {host_id : 1})
+sh.shardCollection("airbnb.listing_tenant1", {host_id : 1})
+sh.shardCollection("airbnb.listing_tenant2", {host_id : 1})
