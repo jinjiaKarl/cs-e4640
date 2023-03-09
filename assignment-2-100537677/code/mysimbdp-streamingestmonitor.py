@@ -1,12 +1,28 @@
 import argparse, json, signal
 from confluent_kafka import Consumer, Producer,TopicPartition
+import logging
 
 kafka_host = "localhost:9092,localhost:9093,localhost:9094"
 running = True
+
+
+def set_logger():
+    logging.basicConfig(
+        format="%(asctime)s %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+        filename="../logs/streamingmonitor.log",
+        filemode="a",
+    )
+    logger = logging.getLogger()
+    logger.setLevel(logging.DEBUG)
+    return logger
+
+
+
 def set_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--mq', type=str, help='mq name', default='kafka')
-    parser.add_argument('--tenant_name', type=str, help='tenant name, separate by comma', default='tenant1')
+    parser.add_argument('--tenant_name', type=str, help='tenant name, separate by comma', default='tenant1,tenant2')
     parser.add_argument('--topic_name', type=str, help='topic name', default='test')
     parser.add_argument('--threshold', type=int, help='threshold for average ingestion time', default=1)
     args = parser.parse_args()
@@ -49,10 +65,14 @@ def consume():
             data = msg.value().decode("utf-8")
             print("Consumer {} consume data: {} from topic {}".format(consumer_group, data, msg.topic()))
             json_data = json.loads(data)
-            
+            logger.info("Consumer {} consume data: {} from topic {}".format(consumer_group, data, msg.topic()))
             if json_data != {} and json_data["avg_ingestion_time"] < args.threshold:
                 json_data["alert_type"] = "delete_consumer"
                 json_data["alert_msg"] = "Average ingestion time is less than threshold, delete a {} consumer".format(json_data["tenant_name"])
+                produce_alert(p, json_data)
+            elif json_data != {} and json_data["avg_ingestion_time"] >= args.threshold:
+                json_data["alert_type"] = "add_consumer"
+                json_data["alert_msg"] = "Average ingestion time is greater than threshold, add a {} consumer".format(json_data["tenant_name"])
                 produce_alert(p, json_data)
     finally:
         c.close()
@@ -70,9 +90,10 @@ def produce_alert(p, data):
                 msg.topic(), msg.value().decode("utf-8")
             )
             print(message)
-    topic_name = args.tenant_name + "_" + args.topic_name + "_alert"
-    p.produce(topic_name, json.dumps(data), callback=cb)
-    p.flush()
+    for name in args.tenant_name.split(","):
+        topic_name = name + "_" + args.topic_name + "_alert"
+        p.produce(topic_name, json.dumps(data), callback=cb)
+        p.flush()
 
 
 def exit_handler(signum, frame):
@@ -80,6 +101,7 @@ def exit_handler(signum, frame):
     exit()
 
 if __name__ == "__main__":
+    logger = set_logger()
     args = set_args()
     signal.signal(signal.SIGINT, exit_handler)
     signal.signal(signal.SIGTERM, exit_handler)

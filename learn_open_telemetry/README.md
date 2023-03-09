@@ -11,7 +11,7 @@ Components
             * directly to a backend
             * via a collector
     * synchronous instruments: are used inline with application/business processing logic, like when handling a request or calling another service. 
-    * asynchronous instruments: register callback functions, which are invoked on demand to make measurements. This is useful to periodically measure a value that cannot be instrumented directly.
+    * asynchronous instruments: register callback functions, which are invoked on demand to make measurements. This is useful to periodically measure a value that cannot be instrumented directly. Callback functions will be called only when the Meter is being observed. 
 * collector: It supports receiving telemetry data in multiple formats (e.g., OTLP, Jaeger, Prometheus, as well as many commercial/proprietary tools) and sending data to one or more backends. 
     * two versions of Collector: 
         * `Collector core` packages provide the basic functionality to receive, process, and export telemetry data.
@@ -25,6 +25,7 @@ Components
 将数据发送到后端有两种方式：
 * 通过exporter直接发送
 * 先发送到collector，再由collector发送到后端
+
 
 
 

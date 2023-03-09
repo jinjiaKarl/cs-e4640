@@ -4,11 +4,10 @@ The deployment docker-compose.yml file is reused from the previous assignment. I
 
 ## Deployment
 ```
-# 
-pip3 install opentelemetry-exporter-otlp
-pip3 install opentelemetry-sdk
-
 cd code
+python3 -m venv .
+source ./bin/activate
+
 pip3 install -r requirements.txt
 
 # start kafka and sharded mongo cluster
@@ -30,6 +29,9 @@ docker compose down
 # clear all volumes
 docker volume rm `docker volume ls | grep code | awk '{print $2}'`
 docker volume prune # remove all unused volumes
+
+#
+deactivate
 ```
 
 ## Run batch

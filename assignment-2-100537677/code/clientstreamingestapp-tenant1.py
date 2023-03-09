@@ -60,7 +60,7 @@ def start():
                 "ingestion_time": end - start, # float in seconds
                 "avg_ingestion_time": time_consumed / msg_count,
                 "ingestion_type": "streaming",
-                "ingestion_rate": msg_size /  end - start,
+                "ingestion_rate": msg_size /  (end - start),
                 "data_size": msg_size, # in bytes
                 "total_data_size": total_msg_size,
                 "qps": total_msg_size / time_consumed,

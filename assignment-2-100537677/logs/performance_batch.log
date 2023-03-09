@@ -1,0 +1,72 @@
+Watcher Running in ./client-staging-input-directory/
+
+Created: /Users/zhangjinjia/code/big_data/cs-e4640-big-data-platform/assignment-2-100537677/code/client-staging-input-directory/tenant1-listings_summary_1.csv file
+Constraints: {'file_types': 'csv,json', 'number_of_files_limit': 10, 'file_size_limit': 10485760}
+/Users/zhangjinjia/code/big_data/cs-e4640-big-data-platform/assignment-2-100537677/code/client-staging-input-directory/tenant1-listings_summary_1.csv file size: 7404160
+Ingesting file: /Users/zhangjinjia/code/big_data/cs-e4640-big-data-platform/assignment-2-100537677/code/client-staging-input-directory/tenant1-listings_summary_1.csv with name: tenant1
+Ingestion result: True metrics: {'ingestion_time': 1.8992266654968262, 'ingestion_type': 'batch', 'file_name': 'tenant1-listings_summary_1.csv', 'ingestion_rate': 3898513.0814089095, 'data_size': 7404160, 'successful_rows': 40438, 'failed_rows': 0, 'tenant_name': 'tenant1', 'timestamp': '2023-03-09 23:19:50.019695'} 
+Tenant: tenant1 QPS: 3898513.0814089095 Time 1.8992266654968262 Successful Rows: 40438 Failed Rows: 0
+Deleted: /Users/zhangjinjia/code/big_data/cs-e4640-big-data-platform/assignment-2-100537677/code/client-staging-input-directory/tenant1-listings_summary_1.csv file
+Created: /Users/zhangjinjia/code/big_data/cs-e4640-big-data-platform/assignment-2-100537677/code/client-staging-input-directory/tenant1-listings_summary_2.csv file
+Constraints: {'file_types': 'csv,json', 'number_of_files_limit': 10, 'file_size_limit': 10485760}
+/Users/zhangjinjia/code/big_data/cs-e4640-big-data-platform/assignment-2-100537677/code/client-staging-input-directory/tenant1-listings_summary_2.csv file size: 7404160
+Ingesting file: /Users/zhangjinjia/code/big_data/cs-e4640-big-data-platform/assignment-2-100537677/code/client-staging-input-directory/tenant1-listings_summary_2.csv with name: tenant1
+Ingestion result: True metrics: {'ingestion_time': 1.919133186340332, 'ingestion_type': 'batch', 'file_name': 'tenant1-listings_summary_2.csv', 'ingestion_rate': 3858075.12094524, 'data_size': 7404160, 'successful_rows': 40438, 'failed_rows': 0, 'tenant_name': 'tenant1', 'timestamp': '2023-03-09 23:19:51.952201'} 
+Tenant: tenant1 QPS: 3878188.692161938 Time 3.818359851837158 Successful Rows: 80876 Failed Rows: 0
+Deleted: /Users/zhangjinjia/code/big_data/cs-e4640-big-data-platform/assignment-2-100537677/code/client-staging-input-directory/tenant1-listings_summary_2.csv file
+Created: /Users/zhangjinjia/code/big_data/cs-e4640-big-data-platform/assignment-2-100537677/code/client-staging-input-directory/tenant1-listings_summary_3.csv file
+Constraints: {'file_types': 'csv,json', 'number_of_files_limit': 10, 'file_size_limit': 10485760}
+/Users/zhangjinjia/code/big_data/cs-e4640-big-data-platform/assignment-2-100537677/code/client-staging-input-directory/tenant1-listings_summary_3.csv file size: 7404160
+Ingesting file: /Users/zhangjinjia/code/big_data/cs-e4640-big-data-platform/assignment-2-100537677/code/client-staging-input-directory/tenant1-listings_summary_3.csv with name: tenant1
+Ingestion result: True metrics: {'ingestion_time': 1.8072240352630615, 'ingestion_type': 'batch', 'file_name': 'tenant1-listings_summary_3.csv', 'ingestion_rate': 4096979.5971766403, 'data_size': 7404160, 'successful_rows': 40438, 'failed_rows': 0, 'tenant_name': 'tenant1', 'timestamp': '2023-03-09 23:19:53.769773'} 
+Tenant: tenant1 QPS: 3948475.4730854635 Time 5.62558388710022 Successful Rows: 121314 Failed Rows: 0
+Deleted: /Users/zhangjinjia/code/big_data/cs-e4640-big-data-platform/assignment-2-100537677/code/client-staging-input-directory/tenant1-listings_summary_3.csv file
+Created: /Users/zhangjinjia/code/big_data/cs-e4640-big-data-platform/assignment-2-100537677/code/client-staging-input-directory/tenant1-listings_summary_4.csv file
+Constraints: {'file_types': 'csv,json', 'number_of_files_limit': 10, 'file_size_limit': 10485760}
+/Users/zhangjinjia/code/big_data/cs-e4640-big-data-platform/assignment-2-100537677/code/client-staging-input-directory/tenant1-listings_summary_4.csv file size: 7404160
+Ingesting file: /Users/zhangjinjia/code/big_data/cs-e4640-big-data-platform/assignment-2-100537677/code/client-staging-input-directory/tenant1-listings_summary_4.csv with name: tenant1
+Ingestion result: True metrics: {'ingestion_time': 1.8306591510772705, 'ingestion_type': 'batch', 'file_name': 'tenant1-listings_summary_4.csv', 'ingestion_rate': 4044532.2634980655, 'data_size': 7404160, 'successful_rows': 40438, 'failed_rows': 0, 'tenant_name': 'tenant1', 'timestamp': '2023-03-09 23:19:55.610806'} 
+Tenant: tenant1 QPS: 3972059.366675247 Time 7.45624303817749 Successful Rows: 161752 Failed Rows: 0
+Deleted: /Users/zhangjinjia/code/big_data/cs-e4640-big-data-platform/assignment-2-100537677/code/client-staging-input-directory/tenant1-listings_summary_4.csv file
+Created: /Users/zhangjinjia/code/big_data/cs-e4640-big-data-platform/assignment-2-100537677/code/client-staging-input-directory/tenant1-listings_summary_5.csv file
+Constraints: {'file_types': 'csv,json', 'number_of_files_limit': 10, 'file_size_limit': 10485760}
+/Users/zhangjinjia/code/big_data/cs-e4640-big-data-platform/assignment-2-100537677/code/client-staging-input-directory/tenant1-listings_summary_5.csv file size: 7404160
+Ingesting file: /Users/zhangjinjia/code/big_data/cs-e4640-big-data-platform/assignment-2-100537677/code/client-staging-input-directory/tenant1-listings_summary_5.csv with name: tenant1
+Ingestion result: True metrics: {'ingestion_time': 1.9830169677734375, 'ingestion_type': 'batch', 'file_name': 'tenant1-listings_summary_5.csv', 'ingestion_rate': 3733785.4997345316, 'data_size': 7404160, 'successful_rows': 40438, 'failed_rows': 0, 'tenant_name': 'tenant1', 'timestamp': '2023-03-09 23:19:57.603804'} 
+Tenant: tenant1 QPS: 3922002.3578819153 Time 9.439260005950928 Successful Rows: 202190 Failed Rows: 0
+Deleted: /Users/zhangjinjia/code/big_data/cs-e4640-big-data-platform/assignment-2-100537677/code/client-staging-input-directory/tenant1-listings_summary_5.csv file
+Created: /Users/zhangjinjia/code/big_data/cs-e4640-big-data-platform/assignment-2-100537677/code/client-staging-input-directory/tenant1-listings_summary_6.csv file
+Constraints: {'file_types': 'csv,json', 'number_of_files_limit': 10, 'file_size_limit': 10485760}
+/Users/zhangjinjia/code/big_data/cs-e4640-big-data-platform/assignment-2-100537677/code/client-staging-input-directory/tenant1-listings_summary_6.csv file size: 7404160
+Ingesting file: /Users/zhangjinjia/code/big_data/cs-e4640-big-data-platform/assignment-2-100537677/code/client-staging-input-directory/tenant1-listings_summary_6.csv with name: tenant1
+Ingestion result: True metrics: {'ingestion_time': 1.9920032024383545, 'ingestion_type': 'batch', 'file_name': 'tenant1-listings_summary_6.csv', 'ingestion_rate': 3716941.81562398, 'data_size': 7404160, 'successful_rows': 40438, 'failed_rows': 0, 'tenant_name': 'tenant1', 'timestamp': '2023-03-09 23:19:59.605900'} 
+Tenant: tenant1 QPS: 3886268.6642887373 Time 11.431263208389282 Successful Rows: 242628 Failed Rows: 0
+Deleted: /Users/zhangjinjia/code/big_data/cs-e4640-big-data-platform/assignment-2-100537677/code/client-staging-input-directory/tenant1-listings_summary_6.csv file
+Created: /Users/zhangjinjia/code/big_data/cs-e4640-big-data-platform/assignment-2-100537677/code/client-staging-input-directory/tenant1-listings_summary_7.csv file
+Constraints: {'file_types': 'csv,json', 'number_of_files_limit': 10, 'file_size_limit': 10485760}
+/Users/zhangjinjia/code/big_data/cs-e4640-big-data-platform/assignment-2-100537677/code/client-staging-input-directory/tenant1-listings_summary_7.csv file size: 7404160
+Ingesting file: /Users/zhangjinjia/code/big_data/cs-e4640-big-data-platform/assignment-2-100537677/code/client-staging-input-directory/tenant1-listings_summary_7.csv with name: tenant1
+Ingestion result: True metrics: {'ingestion_time': 1.8798580169677734, 'ingestion_type': 'batch', 'file_name': 'tenant1-listings_summary_7.csv', 'ingestion_rate': 3938680.4392509237, 'data_size': 7404160, 'successful_rows': 40438, 'failed_rows': 0, 'tenant_name': 'tenant1', 'timestamp': '2023-03-09 23:20:01.496813'} 
+Tenant: tenant1 QPS: 3893670.497213111 Time 13.311121225357056 Successful Rows: 283066 Failed Rows: 0
+Deleted: /Users/zhangjinjia/code/big_data/cs-e4640-big-data-platform/assignment-2-100537677/code/client-staging-input-directory/tenant1-listings_summary_7.csv file
+Created: /Users/zhangjinjia/code/big_data/cs-e4640-big-data-platform/assignment-2-100537677/code/client-staging-input-directory/tenant1-listings_summary_8.csv file
+Constraints: {'file_types': 'csv,json', 'number_of_files_limit': 10, 'file_size_limit': 10485760}
+/Users/zhangjinjia/code/big_data/cs-e4640-big-data-platform/assignment-2-100537677/code/client-staging-input-directory/tenant1-listings_summary_8.csv file size: 7404160
+Ingesting file: /Users/zhangjinjia/code/big_data/cs-e4640-big-data-platform/assignment-2-100537677/code/client-staging-input-directory/tenant1-listings_summary_8.csv with name: tenant1
+Ingestion result: True metrics: {'ingestion_time': 1.8031108379364014, 'ingestion_type': 'batch', 'file_name': 'tenant1-listings_summary_8.csv', 'ingestion_rate': 4106325.492710036, 'data_size': 7404160, 'successful_rows': 40438, 'failed_rows': 0, 'tenant_name': 'tenant1', 'timestamp': '2023-03-09 23:20:03.309518'} 
+Tenant: tenant1 QPS: 3919039.998324123 Time 15.114232063293457 Successful Rows: 323504 Failed Rows: 0
+Deleted: /Users/zhangjinjia/code/big_data/cs-e4640-big-data-platform/assignment-2-100537677/code/client-staging-input-directory/tenant1-listings_summary_8.csv file
+Created: /Users/zhangjinjia/code/big_data/cs-e4640-big-data-platform/assignment-2-100537677/code/client-staging-input-directory/tenant1-listings_summary_9.csv file
+Constraints: {'file_types': 'csv,json', 'number_of_files_limit': 10, 'file_size_limit': 10485760}
+/Users/zhangjinjia/code/big_data/cs-e4640-big-data-platform/assignment-2-100537677/code/client-staging-input-directory/tenant1-listings_summary_9.csv file size: 7404160
+Ingesting file: /Users/zhangjinjia/code/big_data/cs-e4640-big-data-platform/assignment-2-100537677/code/client-staging-input-directory/tenant1-listings_summary_9.csv with name: tenant1
+Ingestion result: True metrics: {'ingestion_time': 1.9663751125335693, 'ingestion_type': 'batch', 'file_name': 'tenant1-listings_summary_9.csv', 'ingestion_rate': 3765385.3289773054, 'data_size': 7404160, 'successful_rows': 40438, 'failed_rows': 0, 'tenant_name': 'tenant1', 'timestamp': '2023-03-09 23:20:05.285467'} 
+Tenant: tenant1 QPS: 3901350.7724893554 Time 17.080607175827026 Successful Rows: 363942 Failed Rows: 0
+Deleted: /Users/zhangjinjia/code/big_data/cs-e4640-big-data-platform/assignment-2-100537677/code/client-staging-input-directory/tenant1-listings_summary_9.csv file
+Created: /Users/zhangjinjia/code/big_data/cs-e4640-big-data-platform/assignment-2-100537677/code/client-staging-input-directory/tenant1-listings_summary_10.csv file
+Constraints: {'file_types': 'csv,json', 'number_of_files_limit': 10, 'file_size_limit': 10485760}
+/Users/zhangjinjia/code/big_data/cs-e4640-big-data-platform/assignment-2-100537677/code/client-staging-input-directory/tenant1-listings_summary_10.csv file size: 7404160
+Ingesting file: /Users/zhangjinjia/code/big_data/cs-e4640-big-data-platform/assignment-2-100537677/code/client-staging-input-directory/tenant1-listings_summary_10.csv with name: tenant1
+Ingestion result: True metrics: {'ingestion_time': 2.0396599769592285, 'ingestion_type': 'batch', 'file_name': 'tenant1-listings_summary_10.csv', 'ingestion_rate': 3630095.2529540192, 'data_size': 7404160, 'successful_rows': 40438, 'failed_rows': 0, 'tenant_name': 'tenant1', 'timestamp': '2023-03-09 23:20:07.335136'} 
+Tenant: tenant1 QPS: 3872414.512221419 Time 19.120267152786255 Successful Rows: 404380 Failed Rows: 0
+Deleted: /Users/zhangjinjia/code/big_data/cs-e4640-big-data-platform/assignment-2-100537677/code/client-staging-input-directory/tenant1-listings_summary_10.csv file

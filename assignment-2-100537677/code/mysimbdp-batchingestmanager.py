@@ -7,6 +7,8 @@ from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import (
 from opentelemetry import metrics
 from opentelemetry.sdk.metrics import MeterProvider
 from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
+from opentelemetry.sdk.metrics.view import View
+
 
 def set_logger():
     logging.basicConfig(
@@ -47,14 +49,14 @@ class MyHandler(FileSystemEventHandler):
         # to be more realistic, we should store this in a database
         self.tenants = {}
         # create counter Instrument to report measurements
-        self.successful_rows_counter = meter.create_counter("sucessful_rows")
+        self.successful_rows_counter = meter.create_counter("successful_rows")
         self.failed_rows_counter = meter.create_counter("failed_rows")
         self.data_size_counter = meter.create_counter("data_size")
         self.ingestion_time_counter = meter.create_counter("ingestion_time")
         def cb(options):
             # tranverse self.tenants
             for tenant_name, tenant in self.tenants.items():
-                print("collecting metrics for tenant: {}, {}", tenant_name, tenant)
+                print("collecting metrics for tenant: {}, {}".format(tenant_name, tenant))
                 yield metrics.Observation(tenant["qps"], {"tenant": tenant_name})
         meter.create_observable_gauge("qps", callbacks=[cb], description="qps")
 
@@ -85,6 +87,7 @@ class MyHandler(FileSystemEventHandler):
         if (constraints.get("number_of_files_limit") != None and self.tenants[tenant_name]["file_count"] > constraints.get("number_of_files_limit")):
             print("{} file {} count {} exceeded!".format(tenant_name, filename, self.tenants[tenant_name]["file_count"]))
             return False
+        print("{} file size: {}".format(src_path, os.path.getsize(src_path)))
         if (constraints.get("file_size_limit") != None and os.path.getsize(src_path) > constraints.get("file_size_limit")):
             print("{} file {} size exceeded!".format(tenant_name, filename))
             return False
@@ -96,21 +99,21 @@ class MyHandler(FileSystemEventHandler):
         is_success, metrics = app.ingestion(src_path, extension, tenant_name)
         print("Ingestion result: {} metrics: {} ".format(is_success, metrics))
         logger.info("Ingestion result: {} metrics: {}".format(is_success, metrics))
-        self.successful_rows_counter.add(metrics.get("sucessful_rows", 0), {"tenant": tenant_name})
+        self.successful_rows_counter.add(metrics.get("successful_rows", 0), {"tenant": tenant_name})
         self.failed_rows_counter.add(metrics.get("failed_rows", 0), {"tenant": tenant_name})
         self.data_size_counter.add(metrics.get("data_size", 0), {"tenant": tenant_name})
         self.ingestion_time_counter.add(metrics.get("ingestion_time", 0), {"tenant": tenant_name})
         if (self.tenants.get(tenant_name) != None and is_success):
             self.tenants[tenant_name]["data_size"] = self.tenants[tenant_name].get("data_size", 0) + metrics.get("data_size", 0)
             self.tenants[tenant_name]["ingestion_time"] = self.tenants[tenant_name].get("ingestion_time", 0) + metrics.get("ingestion_time", 0)
-            self.tenants[tenant_name]["sucessful_rows"] = self.tenants[tenant_name].get("sucessful_rows", 0) + metrics.get("sucessful_rows", 0)
+            self.tenants[tenant_name]["successful_rows"] = self.tenants[tenant_name].get("successful_rows", 0) + metrics.get("successful_rows", 0)
             self.tenants[tenant_name]["failed_rows"] = self.tenants[tenant_name].get("failed_rows", 0) + metrics.get("failed_rows", 0)
             self.tenants[tenant_name]["qps"] = self.tenants[tenant_name]["data_size"] / self.tenants[tenant_name]["ingestion_time"]
             self.performance_metrics(tenant_name)
         return is_success
     
     def performance_metrics(self, tenant_name):
-        success_rows = self.tenants[tenant_name]["sucessful_rows"]
+        success_rows = self.tenants[tenant_name]["successful_rows"]
         failed_rows = self.tenants[tenant_name]["failed_rows"]
         print("Tenant: {} QPS: {} Time {} Successful Rows: {} Failed Rows: {}".format(tenant_name, self.tenants[tenant_name]["qps"], self.tenants[tenant_name]["ingestion_time"], success_rows, failed_rows))
 
@@ -140,20 +143,46 @@ class MyHandler(FileSystemEventHandler):
                 os.rename(event.src_path, new_file)
                 print("Move file to: {}".format(new_file))
 
-
-if __name__=="__main__":
-    logger = set_logger()
+def set_opentelemetry():
+    view_with_attributes_limit_successful_rows = View(
+        instrument_type=metrics.Counter,
+        instrument_name="successful_rows",
+        attribute_keys={"tenant"},
+    )
+    view_with_attributes_limit_failed_rows = View(
+        instrument_type=metrics.Counter,
+        instrument_name="failed_rows",
+        attribute_keys={"tenant"},
+    )
+    view_with_attributes_limit_data_size = View(
+        instrument_type=metrics.Counter,
+        instrument_name="data_size",
+        attribute_keys={"tenant"},
+    )
+    view_with_attributes_limit_ingestion_time = View(
+        instrument_type=metrics.Counter,
+        instrument_name="ingestion_time",
+        attribute_keys={"tenant"},
+    )
     exporter = OTLPMetricExporter(insecure=True)
     # MetricReader: collect metrics and export to OTLP, default interval is 60000 milliseconds
     # https://opentelemetry.io/docs/reference/specification/metrics/sdk/#periodic-exporting-metricreader
     reader = PeriodicExportingMetricReader(exporter)
     # MteterProvider: It provides access to Meters.
-    provider = MeterProvider(metric_readers=[reader])
+    provider = MeterProvider(
+        metric_readers=[reader],
+        views=[view_with_attributes_limit_successful_rows, view_with_attributes_limit_failed_rows, view_with_attributes_limit_data_size, view_with_attributes_limit_ingestion_time]
+    )
+
     # set global MeterProvider
     metrics.set_meter_provider(provider)
     # Meter: responsible for creating Instruments
     meter = metrics.get_meter_provider().get_meter("batch", "0.1.0")
+    return meter
 
+if __name__=="__main__":
+    logger = set_logger()
+    meter = set_opentelemetry()
     folder_name = "./client-staging-input-directory"
     w = Watcher(folder_name, MyHandler())
     w.run()

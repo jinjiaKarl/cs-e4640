@@ -30,9 +30,9 @@ def ingestion(file_path, extension, name):
         "ingestion_time": end - start, # float in seconds
         "ingestion_type": "batch",
         "file_name": file_path.split("/")[-1],
-        "ingestion_rate": data_size / (time.time() - start),
+        "ingestion_rate": data_size / (time.time() - start), # qps
         "data_size": data_size, # in bytes
-        "sucessful_rows": sucessful_rows,
+        "successful_rows": sucessful_rows,
         "failed_rows": failed_rows,
         "tenant_name": name,
         "timestamp": str(datetime.datetime.now())
