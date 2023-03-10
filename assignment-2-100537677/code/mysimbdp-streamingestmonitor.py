@@ -1,6 +1,13 @@
 import argparse, json, signal
 from confluent_kafka import Consumer, Producer,TopicPartition
 import logging
+from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import (
+    OTLPMetricExporter,
+)
+from opentelemetry import metrics
+from opentelemetry.sdk.metrics import MeterProvider
+from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
+
 
 kafka_host = "localhost:9092,localhost:9093,localhost:9094"
 running = True
@@ -55,6 +62,14 @@ def consume():
     try:
         c.subscribe(sub_topics)
         print("Kafka {} Consumer has been initiated...".format(consumer_group))
+        json_data = {}
+        def cb(options):
+            if json_data != {}:
+                tenant_name = json_data["tenant_name"]
+                stream_qps = json_data["qps"]
+                yield metrics.Observation(stream_qps, {"tenant": tenant_name})
+        meter.create_observable_gauge("stream_qps", callbacks=[cb], description="stream_qps")
+
         while running:
             msg = c.poll(timeout=1.0)
             if msg is None:
@@ -100,9 +115,25 @@ def exit_handler(signum, frame):
     print("Exit")
     exit()
 
+def set_opentelemetry():
+    exporter = OTLPMetricExporter(insecure=True)
+    # MetricReader: collect metrics and export to OTLP, default interval is 60000 milliseconds
+    # https://opentelemetry.io/docs/reference/specification/metrics/sdk/#periodic-exporting-metricreader
+    reader = PeriodicExportingMetricReader(exporter)
+    # MteterProvider: It provides access to Meters.
+    provider = MeterProvider(
+        metric_readers=[reader],
+    )
+    # set global MeterProvider
+    metrics.set_meter_provider(provider)
+    # Meter: responsible for creating Instruments
+    meter = metrics.get_meter_provider().get_meter("batch", "0.1.0")
+    return meter
+
 if __name__ == "__main__":
     logger = set_logger()
     args = set_args()
+    meter = set_opentelemetry()
     signal.signal(signal.SIGINT, exit_handler)
     signal.signal(signal.SIGTERM, exit_handler)
     consume()

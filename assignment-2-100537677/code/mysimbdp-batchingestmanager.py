@@ -58,7 +58,7 @@ class MyHandler(FileSystemEventHandler):
             for tenant_name, tenant in self.tenants.items():
                 print("collecting metrics for tenant: {}, {}".format(tenant_name, tenant))
                 yield metrics.Observation(tenant["qps"], {"tenant": tenant_name})
-        meter.create_observable_gauge("qps", callbacks=[cb], description="qps")
+        meter.create_observable_gauge("batch_qps", callbacks=[cb], description="batch_qps")
 
     def parse_src_path(self, event):
         src_path = event.src_path

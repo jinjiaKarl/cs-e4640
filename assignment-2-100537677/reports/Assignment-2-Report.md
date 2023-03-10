@@ -190,17 +190,30 @@ The integrated architecture for logging and monitoring of both batch and near-re
 * Monitoring: A monitoring system, such as Grafana, can be used to visualize and analyze the logging and metrics data. Dashboards can be created to show the ingestion performance for individual tenants.
 * Integration: Each component should be configured to send logs and metrics to the centralized logging and metrics systems in batch and near-realtime ingestion.
 
+I have implemented this feature, the architecture is as follows:
+```
++---------------+
+|  batchmanager |
++---------------+      +---------------+
+                +------>               |    +-------------------+
+                +------>  collector    +---->   prometheus      |
++---------------+      |               |    +-------------------+
+|  streaminitor |      +---------------+
++---------------+
+```
+
 ## 2. In the stream ingestion pipeline, assume that a tenant has to ingest the same data but to different sinks, e.g., mybdp-coredms for storage and a new mybdp-streamdataprocessing component, what features/solutions you can provide and recommend to your tenant? (1 point)
 
-To support ingesting data to multiple sinks, the tenant could modify their clientstreamingestapp to include a new output channel for the additional sink, and configure the app to write to both outputs. Alternatively, the tenant could create a separate clientstreamingestapp specifically for ingesting data to the new sink, with its own configuration and output channel.
 
-To support this scenario more efficiently, mysimbdp could provide a pipeline architecture that allows the same data to be ingested to multiple sinks simultaneously, with each sink having its own dedicated processing pipeline. This could involve configuring a message broker such as Apache Kafka to publish the ingested data to multiple topics, with each topic corresponding to a different processing pipeline. Alternatively, mysimbdp could provide a custom solution that handles the distribution of data to multiple sinks, such as a dedicated sink routing service that receives the ingested data and routes it to the appropriate processing pipeline based on its destination.
+To support this scenario more efficiently, mysimbdp could provide a pipeline architecture that allows the same data to be ingested to multiple sinks simultaneously, with each sink having its own dedicated processing pipeline. The tenant can then configure their clientstreamingestapp to send the ingested data to different topics. We set up a new service, mysimbdp-sinkrouter, to receive the ingested data from the clientstreamingestapp and each topic can be routed to different sinks.
+
+
 
 ## 3. The tenant wants to protect the data during the ingestion by using some encryption mechanisms to encrypt data in files. Thus, clientbatchingestapp has to deal with encrypted data. Which features/solutions you recommend the tenants and which services you might support them for this goal? (1 point)
 
 To support the tenant's goal of encrypting their data during ingestion, mysimbdp can offer the following solutions:
 
-* Data encryption at the source: The tenant can encrypt the data at the source, i.e., before sending it to mysimbdp. This can be done using various encryption tools and libraries such as OpenSSL, GnuPG, or other third-party encryption software. The tenant can then provide mysimbdp with the necessary keys and decryption tools to access the data.
+* Data encryption at the source: The tenant can encrypt the data at the source, i.e., before sending it to mysimbdp. This can be done using various encryption tools and libraries such as OpenSSL. The tenant can then provide mysimbdp with the necessary keys and decryption tools to access the data.
 
 * Encryption during transmission: mysimbdp can support the tenant's goal by providing a secure transmission channel for the encrypted data. This can be achieved by using secure protocols such as HTTPS, SFTP, or other secure file transfer protocols. This will ensure that the data remains encrypted during transmission.
 
@@ -216,23 +229,15 @@ By offering these features and solutions, mysimbdp can help the tenant protect t
 
 To achieve quality data detection and metadata storage during near-realtime ingestion, the following design changes can be made to the existing architecture:
 
-* Add a quality control component: A new component, named mysimbdp-qualitycontrol, can be added to the architecture between the messaging system and the mysimbdp-coredms. The role of this component is to perform data quality checks on incoming messages and decide whether to ingest them or not based on predefined quality criteria.
+* Add a quality control component: A new component, named mysimbdp-qualitycontrol, can be added to the architecture between the teant and the clientstreamingestapp. The role of this component is to perform data quality checks on incoming messages and decide whether to ingest them or not based on predefined quality criteria. If the message passes the quality checks, it will be forwarded to the clientstreamingestapp for further processing. If the message fails the quality checks, it will be discarded.
 
-* Define quality criteria: The tenant needs to define quality criteria, such as data completeness, data format, and data consistency, etc. The mysimbdp-qualitycontrol component will use these criteria to determine whether to accept or reject an incoming message.
+* Define quality criteria: The tenant needs to define quality criteria, such as data size, data format etc. The mysimbdp-qualitycontrol component will use these criteria to determine whether to accept or reject an incoming message.
 
-* Add a metadata store: A new metadata store, named mysimbdp-metadatastore, can be added to the architecture. The mysimbdp-qualitycontrol component will store the metadata, including detected quality, of accepted messages in this store.
+* Add a metadata store: A new metadata store, named mysimbdp-metadatastore, can be added to the architecture. The mysimbdp-qualitycontrol component will send quality metadata to mysimbdp-metadatastore for each message that is accepted. mysimbdp-metadatastore can store this metadata in mysimbdp-coredms for further analysis and reporting.
 
-* Integrate with mysimbdp-streamingestmonitor: The mysimbdp-streamingestmonitor component can be modified to monitor the quality of data ingestion. It can receive quality metadata from the mysimbdp-metadatastore and report any quality issues to the tenant via mysimbdp-streamingestmanager.
-
-* Support encryption and decryption: To support encrypted data, the mysimbdp-coredms component can be modified to provide encryption and decryption services for incoming messages.
-
-With these changes, the tenant can ensure that only high-quality data is ingested into the platform, and metadata is stored for further analysis and reporting.
+* Integrate with mysimbdp-streamingestmonitor: The mysimbdp-qualitycontrol component also sends data qulity to mysimbdp-streamingestmonitor for monitoring.
 
 
 ## 5. If a tenant has multiple clientbatchingestapp, each is suitable for a type of data and has different workloads, such as complex transformation or feature engineering (e.g., different CPUs, memory consumption and execution time), how would you extend your design and implementation in Part 1 (only explain the concept/design) to support this requirement? (1 point)
 
-To support multiple clientbatchingestapp instances with different workloads, we can introduce a load balancing component into our design. The load balancing component will receive data from the messaging system and distribute it to different clientbatchingestapp instances based on their available resources and workload capacity.
-
-Each clientbatchingestapp instance can register with the load balancing component to indicate its available resources and workload capacity. When data arrives, the load balancing component will determine which instance to send the data to based on factors such as current workload, available resources, and data type.
-
-To support this, we can modify our design in Part 1 to include the load balancing component between the messaging system and the clientbatchingestapp instances. The load balancing component can also log the data distribution and workload for each clientbatchingestapp instance, which can be used for monitoring and optimization.
+To support multiple clientbatchingestapp instances with different workloads, we can introduce a load balancing component into our design. Each clientbatchingestapp instance can register with the load balancing component to indicate its available resources and workload capacity. When data arrives, the load balancing component will determine which instance in mysimbdp to deal with the data based on factors such as current workload. It means that mysimbdp is a distributed system that has multiple instances to run clientbatchingestapp.
