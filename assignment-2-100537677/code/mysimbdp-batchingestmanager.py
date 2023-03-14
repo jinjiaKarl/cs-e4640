@@ -116,7 +116,7 @@ class MyHandler(FileSystemEventHandler):
         success_rows = self.tenants[tenant_name]["successful_rows"]
         failed_rows = self.tenants[tenant_name]["failed_rows"]
         print("Tenant: {} QPS: {} Time {} Successful Rows: {} Failed Rows: {}".format(tenant_name, self.tenants[tenant_name]["qps"], self.tenants[tenant_name]["ingestion_time"], success_rows, failed_rows))
-
+        logger.info("Tenant: {} QPS: {} Time {} Successful Rows: {} Failed Rows: {}".format(tenant_name, self.tenants[tenant_name]["qps"], self.tenants[tenant_name]["ingestion_time"], success_rows, failed_rows))
 
     def on_created(self, event):
         print("Created: {} file".format(event.src_path))

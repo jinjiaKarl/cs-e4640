@@ -11,7 +11,7 @@ source ./bin/activate
 pip3 install -r requirements.txt
 
 # start kafka and sharded mongo cluster
-docker compose up
+docker compose up -d
 
 # initialize the cluster
 bash mongodb_init.sh
@@ -36,9 +36,26 @@ deactivate
 
 ## Run batch
 ```
+# terminal 1
+python3 mysimbdp-batchingestmanager.py
 
+
+# terminal 2
+cp ../data/data.csv ./client-staging-input-directory/tenant1-data.csv
+
+# terminal 3 to run performance test
+bash performance_batch.sh
 ```
 
 ## Run stream
+```
+# terminal 1
+python3 mysimbdp-streamingestmanager.py
+
+# terminal 2
+python3 mysimbdp-streamingestmonitor.py
+
+# terminal 3 to run performance test
+python3 performance_stream.py
 ```
 ```

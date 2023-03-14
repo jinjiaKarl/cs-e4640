@@ -45,8 +45,10 @@ def start():
         print("Consumer {} consume data: {} from topic {}".format(consumer_group, data, msg.topic()))
         msg_count += 1
         start = time.time()
+        data = json.loads(data)
+        data["tenant_name"] = tenant_name
         # write to mongodb
-        db.insert_one(json.loads(data))
+        db.insert_one(data)
         end = time.time()
         time_consumed += end - start
         # produce report

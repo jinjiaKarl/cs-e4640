@@ -3,7 +3,7 @@ import pandas as pd
 import pymongo
 
 def ingestion(file_path, extension, name):
-    print("Ingesting file: " + file_path, "with name: " + name)
+    print("Ingesting file: " + file_path, "with tenant: " + name)
     client = pymongo.MongoClient("mongodb://localhost:27117/")
     db = client["airbnb"]
     collection = db["listing_tenant1"]
@@ -17,7 +17,8 @@ def ingestion(file_path, extension, name):
     if(extension == "csv"):
         data = pd.read_csv(file_path)
         data_json = json.loads(data.to_json(orient='records'))
-        # TODO: insert data to database
+        for i in range(len(data_json)):
+            data_json[i]["tenant_name"] = "tenant1"
         result = collection.insert_many(data_json)
         end = time.time()
         sucessful_rows = len(result.inserted_ids)
@@ -25,6 +26,8 @@ def ingestion(file_path, extension, name):
     elif(extension == "json"):
         with open(file_path) as f:
             data_json = json.load(f)
+            for i in range(len(data_json)):
+                data_json[i]["tenant_name"] = "tenant1"
             result = collection.insert_many(data_json)
             end = time.time()
             sucessful_rows = len(result.inserted_ids)

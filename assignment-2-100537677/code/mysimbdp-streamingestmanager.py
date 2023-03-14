@@ -5,12 +5,6 @@ from threading import Thread
 import subprocess
 import signal
 
-# 1.读取命令行参数文件，获取tenant name
-# 2.读取tenant name对应的topic name "{tenant_name}_{topic_name}"
-# 3.调用对应的clientstreamingestapp文件，传入pre-defined time，开始接受消息，然后写到mongodb中；将metrics信息发送到 "{tenant_name}_{topic_name}_report"
-# 4.接受alert信息，"{tenant_name}_{topic_name}_alert"
-# 4.1 如果当前average ingestion time (sum(ingestion_time)/messages) < threshold, 删除一个消费者
-# 4.2 如果当前average ingestion time (sum(ingestion_time)/messages) > threshold, 添加新的消费者
 kafka_host = "localhost:9092,localhost:9093,localhost:9094"
 
 def set_args():

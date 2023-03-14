@@ -17,7 +17,8 @@ def ingestion(file_path, extension, name):
     if(extension == "csv"):
         data = pd.read_csv(file_path)
         data_json = json.loads(data.to_json(orient='records'))
-        # TODO: insert data to database
+        for i in range(len(data_json)):
+            data_json[i]["tenant_name"] = "tenant1"
         result = collection.insert_many(data_json)
         end = time.time()
         sucessful_rows = len(result.inserted_ids)

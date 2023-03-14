@@ -3,7 +3,13 @@
 
 ## 1. The ingestion will be applied to files of data. Define a set of constraints for files that mysimbdp will support for ingestion. Design a configuration model for the tenant service profile that can be used to specify a set of constraints for ingestion (e.g., maximum number of files and amount of data). Explain why you as a platform provider decide such constraints. Implement these constraints into simple configuration files and provide examples (e.g., JSON or YAML). (1 point)
 
-As a platform provider, we need to define a set of constraints for files that mysimbdp will support for ingestion to ensure the system's stability, reliability, and security, for example, preventing from DDoS attacks by limiting the number of files and the amount of data.
+As a platform provider, we need to define a set of constraints for files that mysimbdp will support for ingestion to ensure the system's stability, reliability, and security.
+
+The file_types constraint is necessary to ensure that the data is stored in a structured manner, which facilitates data processing.
+
+The file_size_limit constraint is designed to prevent the ingestion of large files, which can slow down the pipeline and increase the likelihood of data corruption. Different file formats have different data structures, and by limiting the allowed file formats, the ingestion pipeline can process data more efficiently.
+
+The number_of_files_limit constraint is designed to prevent the ingestion pipeline from being overwhelmed by a large number of files. By limiting the number of files that can be ingested at once, the pipeline can efficiently process the data without overwhelming the system.
 
 The tenant service profile is as follows (file_size_limit is in bytes):
 ```
@@ -11,40 +17,40 @@ The tenant service profile is as follows (file_size_limit is in bytes):
 {
     "file_types":"csv,json",
     "number_of_files_limit":10, 
-    "file_size_limit":1048576
+    "file_size_limit":10485760
 }
 
 # constraints_tenant2.json
 {
     "file_types":"json",
-    "number_of_files_limit":5, 
-    "file_size_limit":1048576
+    "number_of_files_limit":15, 
+    "file_size_limit":10485760
 }
 ```
 
 
 ## 2. Each tenant will put the tenant's data files to be ingested into a staging directory, client-staging-input-directory within mysimbdp (the staging directory is managed by the platform). Each tenant provides its ingestion programs/pipelines, clientbatchingestapp, which will take the tenant's files as input, in client-staging-input-directory, and ingest the files into mysimbdp-coredms. Any clientbatchingestapp must perform at least one type of data wrangling to transform data elements in files to another structure for ingestion. As a tenant, explain the design of clientbatchingestapp and provide one implementation. Note that clientbatchingestapp follows the guideline of mysimbdp given in the next Point 3. (1 point)
 
-clientbatchingestapp has the following steps:
-* file input: client-staging-input-directory
-* data wrangling: from csv to json
-* batch insert to mysimbdp-coredms
+clientbatchingestapp design:
+* input: files in client-staging-input-directory
+* data wrangling: from csv to json, add new field "tenant_name"
+* action: batch insert to mysimbdp-coredms
 * output: metrics
 
 ## 3. As the mysimbdp provider, design and implement a component mysimbdp-batchingestmanager that invokes tenant's clientbatchingestapp to perform the ingestion for available files in client-staging-input-directory. mysimbdp imposes the model that clientbatchingestapp has to follow but clientbatchingestapp is, in principle, a blackbox to mysimbdp-batchingestmanager. Explain how mysimbdp-batchingestmanager knows the list of clientbatchingestapp and decides/schedules the execution of clientbatchingestapp for tenants. (1 point)
 
 
-mysimbdp-batchingestmanager has the following steps:
-* listen to client-staging-input-directory using `watchdog` library
-* if new files are added, there are a few steps
-    * retrieve the tenant's name from the file name
-    * check the constraints of `constraints_[tenant_name].json` to see if the new files are valid or not
-    * if it is valid, invoke clientbatchingestapp using `importlib` library based on file_names; if it is not valid, we move the files to client-staging-input-invalid-directory
-    * if invoking clientbatchingestapp is successful, we delete the files; if not, we move the files to client-staging-input-failed-directory
-        * here is one possible problem: if we execute the failed file again, how to ensure idempotence
+mysimbdp-batchingestmanager design:
+* watch the client-staging-input-directory using `watchdog` library
+* if new files are added, mysimbdp-batchingestmanager will receive an event. There are a few steps
+    * retrieve the tenant's name `[tenant_name]` from the file name
+    * check the constraints of `constraints_[tenant_name].json` to see if the new file is valid or not
+    * if it is valid, invoke `clientbatchingestapp-[tenant_name].py` using `importlib` library according to different tenant names; if it is not valid, we move the file to client-staging-input-invalid-directory
+    * if invoking `clientbatchingestapp-[tenant_name].py` is successful, we delete the file; if not, we move the file to client-staging-input-failed-directory
+        * here is one possible problem: if we execute the failed file again, how to ensure idempotence. We can use a database to store the information of the files that have been executed failed, such as how many lines are inserted successfully, so, when the failed file is executed again and it can ensure idempotence. But, in this assignment, I have not implemented this feature.
 * the batchingestmanager can support various schedule policy
-    * first come first serve (default), which is implemented in this assignment. It depends on when the `watchdog` library detects the new files.
-    * prority policy based on the `constraints_[tenant_name].json` (not implemented)
+    * first come first serve (default), which is implemented in this assignment. It depends on the order in which the `watchdog` library detects the new files.
+    * prority policy according to the `constraints_[tenant_name].json` (not implemented). For example, the tenant with higher priority will be executed first.
 
 
 
@@ -53,9 +59,9 @@ mysimbdp-batchingestmanager has the following steps:
 
 The core components such as mysimbdp-coredms, mysimbdp-daas and mysimbdp-batchingestmanager will be shared among all tenants. These components provide the basic data storage and retrieval functionalities that are common to all tenants. 
 
-The ingestion pipeline components such as clientbatchingestapp will be dedicated for individual tenants. Each tenant will have their own clientbatchingestapp and service profile, which specifies the ingestion constraints and configurations specific to that tenant. We can determine whether the current tenant is allowed to execute according to whether the service profile exists
+The ingestion pipeline components clientbatchingestapp will be dedicated for individual tenants. Each tenant will have their own clientbatchingestapp and service profile, which specifies the ingestion constraints and configurations specific to that tenant. We can determine whether the current tenant is allowed to execute according to whether the service profile exists.
 
-test: In my example, I have two tenants, tenant1 and tenant2. Each tenant has their own clientbatchingestapp and service profile. The service profile of tenant1 allows csv and json files, while the service profile of tenant2 only allows csv files. The service profile of tenant1 allows 10 files and 10MB of data, while the service profile of tenant2 allows 5 files and 10MB of data.
+test: In my example, I have two tenants, tenant1 and tenant2. Each tenant has their own clientbatchingestapps and service profiles. The service profile of tenant1 allows csv and json files, while the service profile of tenant2 only allows csv files. The service profile of tenant1 allows 10 files count and 10MB of data, while the service profile of tenant2 allows 5 files count and 10MB of data.
 
 ```
 python3 mysimbdp-batchingestmanager.py
@@ -63,7 +69,8 @@ python3 mysimbdp-batchingestmanager.py
 # test constraints, create 1 json file that is not allowed by tenant2
 cp ../data/data.json ./client-staging-input-directory/tenant2-data.json
 
-# you can see log outputed by mysimbdp-batchingestmanager: the json file is not allowed by tenant2. And the file is moved to client-staging-input-invalid-directory
+# you can see log outputed by mysimbdp-batchingestmanager: 
+# the json file is not allowed by tenant2. And the file is moved to client-staging-input-invalid-directory
 
 
 # test constraints, create 11 csv files that exceed the number of files limit of tenant1
@@ -71,13 +78,15 @@ cp ../data/data.csv ./client-staging-input-directory/tenant1-data.csv
 ......
 cp ../data/data.csv ./client-staging-input-directory/tenant1-data10.csv
 cp ../data/data.csv ./client-staging-input-directory/tenant1-data11.csv
-# you can see log outputed by mysimbdp-batchingestmanager: tenant1 file tenant1-data1.csv count 11 exceeded! And the files are moved to client-staging-input-invalid-directory
+# you can see log outputed by mysimbdp-batchingestmanager:
+# tenant1 file tenant1-data1.csv count 11 exceeded! And the files are moved to client-staging-input-invalid-directory
 
 
 
 # test constraints, the file size of tenant1-data.csv is 14MB, which exceeds the file size limit of tenant1
 cp ../data/big_file.csv ./client-staging-input-directory/tenant1-data.csv
-# you can see log outputed by mysimbdp-batchingestmanager: tenant1 file tenant1-data.csv size exceeded! And the file is moved to client-staging-input-invalid-directory
+# you can see log outputed by mysimbdp-batchingestmanager: 
+# tenant1 file tenant1-data.csv size exceeded! And the file is moved to client-staging-input-invalid-directory
 ```
 
 
@@ -91,12 +100,16 @@ python3 mysimbdp-batchingestmanager.py
 bash performance_batch.sh
 
 # you can see the qps outputed by mysimbdp-batchingestmanager or you can see the metrics on Prometheus `localhost:9090`
-Tenant: tenant1 QPS: 3872414.512221419 Time 19.120267152786255 Successful Rows: 404380 Failed Rows: 0
+# The QPS decreases as the number of files increases because I run the docker container on my laptop and the docker runs in a virtual machine.
+
+Tenant: tenant1 QPS: 3096411.508816951 Time 23.9120671749115 Successful Rows: 404380 Failed Rows: 0
+Tenant: tenant2 QPS: 691131.8673994723 Time 107.13093042373657 Successful Rows: 404380 Failed Rows: 0
 ```
+![](./figures/batch.png)
 
 ## 5. Implement and provide logging features for capturing successful/failed ingestion as well as metrics about ingestion time, data size, etc., for files which have been ingested into mysimbdp. Logging information must be stored in separate files, databases or a monitoring system for analytics of ingestion. Explain how mysimbdp could use such logging information. Show and explain simple statistical data extracted from logs for individual tenants and for the whole platform with your tests. (1 point)
 
-clientbatchingestapp has the following functions:
+clientbatchingestapp design:
 * metrics
     * ingestion_time: time from the start of ingestion to the end of ingestion
     * data_size: size of the file in bytes
@@ -115,45 +128,62 @@ We can write shell script to extract data from log files and analyze the data, f
 * Average ingestion time per tenant
 * total number of successful/failed ingests for the whole platform
 
+```bash
+(code) ➜  code git:(main) ✗ bash analyze_log.sh all
+Total successful rows: 1698552
+(code) ➜  code git:(main) ✗ bash analyze_log.sh    
+Enter the tenant name:
+tenant1
+Total successful rows for tenant1: 1698519
+(code) ➜  code git:(main) ✗ bash analyze_log.sh 
+Enter the tenant name:
+tenant2
+Total successful rows for tenant2: 6
+```
+
 In addition, I also use OpenTelemetry to expose metrics to the Prometheus monitoring systems. In my implementation, I ejected the metrics to the OpenTelemetry collector and the collector will send the metrics to Prometheus. I can use Promql to query the metrics. For example, I can query the total number of successful files ingested per tenant by using the following Promql query `successful_rows`. Or you can use [built-in aggration functions](https://prometheus.io/docs/prometheus/latest/querying/operators/#aggregation-operators) such as `sum` to aggregate the metrics, such as `sum(successful_rows)`. The next step is to visualize the metrics using Grafana, but I hvae not implemented it yet.
 ![](./figures/prometheus.png)
 
 # Part 2 - Near-realtime data ingestion (weighted factor for grades = 3)
 
-## 1. Tenants will put their data into messages and send the messages to a messaging system, mysimbdp- messagingsystem (provisioned by mysimbdp) and tenants will develop ingestion programs, clientstreamingestapp, which read data from the messaging system and ingest the data into mysimbdp-coredms. For near-realtime ingestion, explain your design for the multi-tenancy model in mysimbdp: which parts of the mysimbdp will be shared for all tenants, which parts will be dedicated for individual tenants so that mysimbdp can add and remove tenants based on the principle of pay-per-use. (1 point)
+## 1. Tenants will put their data into messages and send the messages to a messaging system, mysimbdp-messagingsystem (provisioned by mysimbdp) and tenants will develop ingestion programs, clientstreamingestapp, which read data from the messaging system and ingest the data into mysimbdp-coredms. For near-realtime ingestion, explain your design for the multi-tenancy model in mysimbdp: which parts of the mysimbdp will be shared for all tenants, which parts will be dedicated for individual tenants so that mysimbdp can add and remove tenants based on the principle of pay-per-use. (1 point)
 
-Shared components: mysimbdp-corestream is responsible for managing and storing the stream data that is being ingested from different tenants. And  mysimbdp-streamingestmanager is responsible for managing the clientstreamingestapp instances.
+Shared components: mysimbdp-coredms is responsible for managing and storing the stream data that is being ingested from different tenants. And mysimbdp-streamingestmanager is responsible for managing the clientstreamingestapp instances.
 
 Dedicated components: Each tenant will have its own clientstreamingestapp which will read data from the messaging system and ingest it into mysimbdp-coredms. The clientstreamingestapp will be designed and implemented by each tenant to meet their specific data ingestion requirements. 
 
-So we can add and remove tenants based on the principle of pay-per-use. When a new tenant is added, we can create a new topic for this tenant in mysimbdp-streamingestmanager. When a tenant is removed, we can delete the topic of this tenant in the messaging system.
+When a new tenant is added, we can create a new topic for this tenant in mysimbdp-streamingestmanager. When a tenant is removed, we can delete the topic of this tenant in the messaging system. So we can add and remove tenants based on the principle of pay-per-use. 
 
 ## 2. Design and implement a component mysimbdp-streamingestmanager, which can start and stop clientstreamingestapp instances on-demand. mysimbdp imposes the model that clientstreamingestapp has to follow so that mysimbdp-streamingestmanager can invoke clientstreamingestapp as a blackbox, explain the model. (1 point)
 
-mysimbdp-streamingestmanager has the following steps:
+mysimbdp-streamingestmanager design:
 * create topics for each tenant so we can decide whether this tenant is allowed to execute near-realtime data ingestion according to whether the topics exists
 * start the clientstreamingestapp instances using `subprocess` library at the beginning of the program
-* reveive the alert report from mysimbdp-streamingestmonitor and take appropriate actions to address the problem, for example, when the avg_ingestion_time is less than a threshold, we delete one instance of clientstreamingestapp and when the avg_ingestion_time is greater than a threshold, we add one instance of clientstreamingestapp.
+* reveive the alert report from mysimbdp-streamingestmonitor and take appropriate actions to address the problem. When the avg_ingestion_time is less than a threshold, we delete one instance of clientstreamingestapp and when the avg_ingestion_time is greater than a threshold, we add one instance of clientstreamingestapp.
 
 ## 3. Develop test ingestion programs (clientstreamingestapp), which must include one type of data wrangling (transforming the received message to a new structure). Show the performance of ingestion tests, including failures and exceptions, for at least 2 different tenants in your test environment, explain also the data used for testing. What is the maximum throughput of the ingestion in your tests? (1 point)
 
-clientstreamingestapp has the following steps:
-* receive data from the messaging system, topic_name: "{tenant_name}_{topic_name}"
-* data wrangling: transform the received message to json format
-* insert data into mysimbdp-coredms
-* report metrics to mysimbdp-streamingestmonitor, topic_name: "{tenant_name}_{topic_name}_report"
+clientstreamingestapp design:
+* input: receive data from the messaging system, topic_name: "{tenant_name}_{topic_name}"
+* data wrangling: transform the received message to json format, add new field "tenant_name"
+* action: insert data into mysimbdp-coredms
+* output: report metrics to mysimbdp-streamingestmonitor in a predefined_time, topic_name: "{tenant_name}_{topic_name}_report"
 
 
-In my performance test, I write the `performace_stream.py` script to simulate 2 tenants sending data to the message system. And the `streamingestmonitor.py` will output the metrics to the stdout and restore it in `logs/streamingmonitor.log` including the qps.
+In my performance test, I write the `performace_stream.py` script to simulate 2 tenants sending data to the message system. And the `streamingestmonitor.py` will output the metrics to the stdout and restore it in `logs/streamingmonitor.log` including the qps(bytes/time). The data used for testing is airbnb business data.
 ```
 python3 mysimbdp-streamingestmanager.py
 python3 mysimbdp-streamingestmonitor.py
 
 python3 performance_stream.py # it takes about 3 minutes to finish the test
 
-# output in the `logs/streamingmonitor.log` or streamingestmonitor stdout
-Consumer streamingestmonitor consume data: {"total_messages": 40438, "ingestion_time": 0.004021883010864258, "avg_ingestion_time": 0.006804317311119436, "ingestion_type": "streaming", "ingestion_rate": 138740.98239374, "data_size": 558, "total_data_size": 21538399, "qps": 78277.90464685457, "tenant_name": "tenant1", "timestamp": "2023-03-09 23:35:02.292879", "predefined_time": 10} from topic tenant1_test_report
+# output in the `logs/streamingmonitor.log` or stdout or Prometheus "http://localhost:9090"
+Consumer streamingestmonitor consume data: {"total_messages": 12512, "ingestion_time": 0.010510921478271484, "avg_ingestion_time": 0.009270146451032985, "ingestion_type": "streaming", "ingestion_rate": 60889.04777026721, "data_size": 640, "total_data_size": 8007680, "qps": 69038.82299817215, "tenant_name": "tenant1", "timestamp": "2023-03-14 13:52:17.009379", "predefined_time": 10} from topic tenant1_test_report
+
+Consumer streamingestmonitor consume data: {"total_messages": 40441, "ingestion_time": 0.003648042678833008, "avg_ingestion_time": 0.006225906497620177, "ingestion_type": "streaming", "ingestion_rate": 175436.54401673094, "data_size": 640, "total_data_size": 25882240, "qps": 102796.27556961174, "tenant_name": "tenant2", "timestamp": "2023-03-14 13:54:35.340614", "predefined_time": 10} from topic tenant2_test_report
 ```
+![](./figures/stream.png)
+
 
 ## 4. clientstreamingestapp decides to report the its processing rate, including average ingestion time, total ingestion data size, and number of messages to mysimbdp-streamingestmonitor within a pre-defined period of time. Design the report format and explain possible components, flows and the mechanism for reporting. (1 point)
 
@@ -165,19 +195,19 @@ Metrics are as follows:
 * "ingestion_rate": the ingestion rate, in bytes/second
 * "data_size": the size of the ingested data, in bytes
 * "total_data_size": the total size of the ingested data, in bytes
-* "qps": total_msg_size / time_consumed,
+* "qps": total_data_size / time_consumed,
 * "tenant_name": the name of the tenant
 * "timestamp": the timestamp of the report
 * "predefined_time": the interval of the report, in seconds
 
-Clientstreamingestapp will report the metrics to mysimbdp-streamingestmonitor using Kafka producer. The topic name is "{tenant_name}_{topic_name}_report".
+Clientstreamingestapp will report the metrics to mysimbdp-streamingestmonitor using Kafka producer within a pre-defined period of time. The topic name is "{tenant_name}_{topic_name}_report".
 
 
 ## 5. Implement a feature in mysimbdp-streamingestmonitor to receive the report from clientstreamingestapp. Based on the report from clientstreamingestapp, when the performance is below a threshold, e.g., average ingestion time is too low, mysimbdp-streamingestmonitor decides to inform mysimbdp-streamingestmanager about the situation. Implementation a feature in mysimbdp-streamingestmanager to receive information informed by mysimbdp-streamingestmonitor. (1 point)
 
-mysimbdp-streamingestmonitor has the following steps:
-* receive the report clientstreamingestapp in the topic "{tenant_name}_{topic_name}_report"
-* analyzes it to determine if the performance is below a certain threshold. 
+mysimbdp-streamingestmonitor design:
+* input: receive the clientstreamingestapp report data from the topic "{tenant_name}_{topic_name}_report"
+* action: analyzes it to determine if the performance is below or above a certain threshold. 
 * If the performance is below the threshold, mysimbdp-streamingestmonitor would send a message to mysimbdp-streamingestmanager to delete one clientstreamingestapp instance and if not, it would send a message to add one clientstreamingestapp instance. The topic name is {tenant_name}_{topic_name}_alert"
 
 # Part 3 - Integration and Extension (weighted factor for grades = 1)
@@ -205,7 +235,7 @@ I have implemented this feature, the architecture is as follows:
 ## 2. In the stream ingestion pipeline, assume that a tenant has to ingest the same data but to different sinks, e.g., mybdp-coredms for storage and a new mybdp-streamdataprocessing component, what features/solutions you can provide and recommend to your tenant? (1 point)
 
 
-To support this scenario more efficiently, mysimbdp could provide a pipeline architecture that allows the same data to be ingested to multiple sinks simultaneously, with each sink having its own dedicated processing pipeline. The tenant can then configure their clientstreamingestapp to send the ingested data to different topics. We set up a new service, mysimbdp-sinkrouter, to receive the ingested data from the clientstreamingestapp and each topic can be routed to different sinks.
+To support this scenario more efficiently, mysimbdp could provide a pipeline architecture that allows the same data to be ingested to multiple sinks simultaneously, with each sink having its own dedicated processing pipeline. The tenant can then configure their clientstreamingestapp to send the ingested data to different topics. We set up a new service, mysimbdp-router, to receive the ingested data from the clientstreamingestapp and each topic can be routed to different sinks.
 
 
 
@@ -215,7 +245,7 @@ To support the tenant's goal of encrypting their data during ingestion, mysimbdp
 
 * Data encryption at the source: The tenant can encrypt the data at the source, i.e., before sending it to mysimbdp. This can be done using various encryption tools and libraries such as OpenSSL. The tenant can then provide mysimbdp with the necessary keys and decryption tools to access the data.
 
-* Encryption during transmission: mysimbdp can support the tenant's goal by providing a secure transmission channel for the encrypted data. This can be achieved by using secure protocols such as HTTPS, SFTP, or other secure file transfer protocols. This will ensure that the data remains encrypted during transmission.
+* Encryption during transmission: mysimbdp can support the tenant's goal by providing a secure transmission channel for the encrypted data. This can be achieved by using secure protocols such as HTTPS, or other secure file transfer protocols. This will ensure that the data remains encrypted during transmission.
 
 * Encryption at rest: mysimbdp can provide encryption at rest for the tenant's data. This means that the data is encrypted when stored on the mysimbdp platform. This can be achieved by using various encryption techniques such as disk encryption, database encryption, or file-level encryption. mysimbdp can provide the necessary encryption tools and keys to the tenant to ensure that their data remains secure.
 
@@ -229,15 +259,15 @@ By offering these features and solutions, mysimbdp can help the tenant protect t
 
 To achieve quality data detection and metadata storage during near-realtime ingestion, the following design changes can be made to the existing architecture:
 
-* Add a quality control component: A new component, named mysimbdp-qualitycontrol, can be added to the architecture between the teant and the clientstreamingestapp. The role of this component is to perform data quality checks on incoming messages and decide whether to ingest them or not based on predefined quality criteria. If the message passes the quality checks, it will be forwarded to the clientstreamingestapp for further processing. If the message fails the quality checks, it will be discarded.
+* Add a quality control component: A new component can be added to the architecture between the teant and the clientstreamingestapp. The role of this component is to perform data quality checks on incoming messages and decide whether to ingest them or not based on predefined quality criteria. If the message passes the quality checks, it will be forwarded to the clientstreamingestapp for further processing. If the message fails the quality checks, it will be discarded.
 
-* Define quality criteria: The tenant needs to define quality criteria, such as data size, data format etc. The mysimbdp-qualitycontrol component will use these criteria to determine whether to accept or reject an incoming message.
+* Define quality criteria: The tenant needs to define quality criteria, such as data size, data format etc. The new component will use these criteria to determine whether to accept or reject an incoming message.
 
-* Add a metadata store: A new metadata store, named mysimbdp-metadatastore, can be added to the architecture. The mysimbdp-qualitycontrol component will send quality metadata to mysimbdp-metadatastore for each message that is accepted. mysimbdp-metadatastore can store this metadata in mysimbdp-coredms for further analysis and reporting.
+* Add a metadata store: A new metadata store component can be added to the architecture. The new component will send quality metadata to this metadata store component for each message that is accepted. The component can store this metadata in mysimbdp-coredms for further analysis and reporting.
 
-* Integrate with mysimbdp-streamingestmonitor: The mysimbdp-qualitycontrol component also sends data qulity to mysimbdp-streamingestmonitor for monitoring.
+* Integrate with mysimbdp-streamingestmonitor: The new quality control component also sends data qulity to mysimbdp-streamingestmonitor for monitoring.
 
 
 ## 5. If a tenant has multiple clientbatchingestapp, each is suitable for a type of data and has different workloads, such as complex transformation or feature engineering (e.g., different CPUs, memory consumption and execution time), how would you extend your design and implementation in Part 1 (only explain the concept/design) to support this requirement? (1 point)
 
-To support multiple clientbatchingestapp instances with different workloads, we can introduce a load balancing component into our design. Each clientbatchingestapp instance can register with the load balancing component to indicate its available resources and workload capacity. When data arrives, the load balancing component will determine which instance in mysimbdp to deal with the data based on factors such as current workload. It means that mysimbdp is a distributed system that has multiple instances to run clientbatchingestapp.
+To support multiple clientbatchingestapp instances with different workloads, we can introduce a load balancing component into our design. Each clientbatchingestapp instance can register with the load balancing component to indicate its available resources and workload capacity. When data arrive, the load balancing component will determine which instance in mysimbdp to deal with the data based on factors such as current workload. It means that mysimbdp is a distributed system that has multiple instances to run clientbatchingestapp.
