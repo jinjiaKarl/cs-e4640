@@ -1,6 +1,6 @@
 # Spark Concepts
 
-* SparkSession: 它为用户提供了一个统一的切入点来使用Spark的各项功能。
+* SparkSession: Act as a program driver to manage the execution of tasks
     * SparkContext: Main entry point for Spark functionality. A SparkContext represents the connection to a Spark cluster, and can be used to create RDD and broadcast variables on that cluster.
 * RDD：是弹性分布式数据集（Resilient Distributed Dataset）的简称，是分布式内存的一个抽象概念，提供了一种高度受限的共享内存模型。
 * DAG：是Directed Acyclic Graph（有向无环图）的简称，反映RDD之间的依赖关系。
@@ -11,11 +11,21 @@
 * Application: 用户编写的Spark应用程序，一个Application包含多个Job。
 * Job：一个Job包含多个RDD及作用于相应RDD上的各种操作。
 * Stage：是Job的基本调度单位，一个job会分为多组task，每组task被称为“stage”。
-* Task：运行在Executor上的工作单元，是Executor中的一个线程。
+* Task：运行在Executor上的工作单元，是Executor中的一个线程。One task works on a partition at a time.
 * 总结：Application由多个Job组成，Job由多个Stage组成，Stage由多个Task组成。Stage是作业调度的基本单位。
+* Partition: Input data is distributed in different nodes for processing
+    * Support partitions for data processing: a node keeps one or n partitions, a partition resides only in a node => for computing
+* Transformations: Instructions about how to transform a data in a form to another form, and it will not change the original data(immutability)
+* Action: Compute the results for a set of transformations, such as, count or average
 
 
-[RDD](https://www.zhihu.com/question/59810584), DATAFRAME, DATASET的区别？？？
+
+[RDD](https://www.zhihu.com/question/59810584), DATAFRAME, DATASET的区别
+> https://www.zhihu.com/question/48684460
+* RDD API:
+* DataFrame API: distributed data organized into named columns
+* Dataset API: 
+
 
 Spark ecosystem 
 > https://blog.51cto.com/u_15294985/5437527
@@ -25,8 +35,10 @@ Spark ecosystem
     * Dataset: 是对 DataFrame 的进一步封装，包含了其他的信息，例如数据类型。
     * [Structured Streaming](https://spark.apache.org/docs/latest/structured-streaming-kafka-integration.html): 用于对流式实时数据的处理。可以将结果输出到外部存储系统，例如 Kafka 等。
     * Spark MLlib: 提供常见的机器学习(ML)功能的程序库。包括分类、回归、聚类、协同过滤等，还提供了模型评估、数据导入等额外的支持功能。
-* Spark Streaming: Spark 提供的对流式准实时数据进行流式计算的组件。基本原理是把输入数据以某一时间间隔批量的处理，当批处理间隔缩短到秒级时，便可以用于处理实时数据流。
+* Spark Streaming: Spark 提供的对流式准实时数据(near-realtime)进行流式计算的组件。基本原理是把输入数据以某一时间间隔批量的处理，当批处理间隔缩短到秒级时，便可以用于处理实时数据流。
     * DStream: 代表持续性的数据流和经过各种 Spark 算子操作后的结果数据流。
+
+* Spark GraphX: Spark 提供的图计算组件。GraphX 是 Spark 的一个图计算库，它提供了图的并行计算和图的并行操作。
 
 
 
@@ -43,10 +55,17 @@ The Docker compose will create the following containers:
 container|Exposed ports
 ---|---
 spark-master|9090 7077
+spark-master|4040 4040
 spark-worker-1|9091
 spark-worker-2|9092
 demo-database|5432
 
+
+The following UIs are available:
+> https://stackoverflow.com/questions/56397738/
+* Spark UI: Every SparkContext launches a Web UI, by default on port 4040, that displays useful information about the application. 
+* Master UI
+* Worker UI
 # Installation
 
 The following steps will make you run your spark cluster's containers.

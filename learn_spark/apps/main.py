@@ -5,6 +5,7 @@ def init_spark():
   sql = SparkSession.builder\
     .appName("trip-app")\
     .config("spark.jars", "/opt/spark-apps/postgresql-42.2.22.jar")\
+    .config("spark.ui.port", "4040") \
     .getOrCreate()
   sc = sql.sparkContext
   return sql,sc
@@ -17,6 +18,7 @@ def main():
     "driver": "org.postgresql.Driver"
   }
   file = "/opt/spark-data/MTA_2014_08_01.csv"
+  out_file = "/opt/spark-data/out.csv"
   sql,sc = init_spark()
   # return data frame
   df = sql.read.load(file,format = "csv", inferSchema="true", sep="\t", header="true"
@@ -28,7 +30,8 @@ def main():
   df.where("latitude <= 90 AND latitude >= -90 AND longitude <= 180 AND longitude >= -180") \
     .where("latitude != 0.000000 OR longitude !=  0.000000 ") \
     .write \
-    .jdbc(url=url, table="mta_reports", mode='append', properties=properties)
+    .csv(out_file, header=True)
+    #.jdbc(url=url, table="mta_reports", mode='append', properties=properties)
   
 if __name__ == '__main__':
   main()
