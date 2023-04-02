@@ -1,0 +1,30 @@
+version: "3"
+services:
+  jobmanager:
+    image: jinjia/pyflink:latest
+    ports:
+      - "8081:8081"
+    command: jobmanager
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager        
+
+  taskmanager:
+    image: jinjia/pyflink:latest
+    depends_on:
+      - jobmanager
+    command: taskmanager
+    links:
+      - "jobmanager:jobmanager"
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager
+  client:
+    image: jinjia/pyflink:latest
+    command: sleep infinity
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager        

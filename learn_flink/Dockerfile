@@ -1,0 +1,14 @@
+FROM apache/flink:1.17.0-scala_2.12-java11
+
+WORKDIR /
+# https://wicaksonodiaz.medium.com/setup-pyflink-development-environment-76d8491a9ad7
+RUN apt-get update -y && \
+apt-get install -y python3 python3-pip python3-dev && rm -rf /var/lib/apt/lists/*
+RUN ln -s /usr/bin/python3 /usr/bin/python
+
+# install PyFlink
+RUN wget https://files.pythonhosted.org/packages/79/d3/dee7bb8fd0aac3d91950e901dbbcc64e97cb2cbd054723a98a5976f9db48/apache-flink-1.17.0.tar.gz \
+&& wget https://files.pythonhosted.org/packages/fd/ab/f789fef1a151c99107b43346e9254c5759c97f173a237cd2efb469ab9dc3/apache-flink-libraries-1.17.0.tar.gz
+
+
+RUN pip3 install /apache-flink-libraries*.tar.gz && pip3 install /apache-flink*.tar.gz
