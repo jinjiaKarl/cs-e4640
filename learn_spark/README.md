@@ -41,6 +41,10 @@ Spark ecosystem
 * Spark GraphX: Spark 提供的图计算组件。GraphX 是 Spark 的一个图计算库，它提供了图的并行计算和图的并行操作。
 
 
+# Kafka
+
+* Connector
+* Stream DSL
 
 # Spark Cluster with Docker & docker-compose(2021 ver.)
 
